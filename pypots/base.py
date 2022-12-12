@@ -9,6 +9,7 @@ from abc import ABC
 import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
+from datetime import datetime
 
 
 class BaseModel(ABC):
@@ -17,6 +18,7 @@ class BaseModel(ABC):
     def __init__(self, device):
         self.logger = {}
         self.model = None
+        self.write_flag = False
 
         if device is None:
             self.device = torch.device(
@@ -123,8 +125,8 @@ class BaseModel(ABC):
         else:
             return X
 
-    def save_logs_to_tensorboard(self, saving_path):
-        """Save logs (self.logger) into a tensorboard file.
+    def save_logs_to_tensorboard(self, saving_path='./runs/', title=None):
+        """Save logs (self.logger) into a tensorboard file. 
 
         Parameters
         ----------
@@ -132,11 +134,16 @@ class BaseModel(ABC):
             Local disk path to save the tensorboard file.
         """
         # TODO: find a solution for log saving
-        raise IOError("This function is not ready for users.")
+        #raise IOError("This function is not ready for users.")
         # tb_summary_writer = SummaryWriter(saving_path)
         # tb_summary_writer.add_custom_scalars(self.logger)
         # tb_summary_writer.close()
         # print(f'Log saved successfully to {saving_path}.')
+        self.start_time = datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
+        saving_path += f'/{self.start_time}'
+        self.write_flag = True
+        self.writer = SummaryWriter(saving_path, comment=title)
+        return
 
     def save_model(self, saving_path):
         """Save the model to a disk file.
